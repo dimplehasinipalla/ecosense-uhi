@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account</title>
+
+<style>
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
+font-family:Segoe UI;
+}
+
+.box{
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(15px);
+padding:40px;
+border-radius:15px;
+width:320px;
+color:white;
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border:none;
+border-radius:8px;
+background:rgba(0,0,0,0.3);
+color:white;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:25px;
+background:linear-gradient(to right,#ff5e62,#ff9966);
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+#msg{
+margin-top:10px;
+font-size:13px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Create Account</h2>
+
+<input type="text" id="newuser" placeholder="Username">
+
+<input type="password" id="newpass" placeholder="Password">
+
+<button onclick="signup()">Signup</button>
+
+<p id="msg"></p>
+
+<br>
+
+<a href="login.html" style="color:white">Back to Login</a>
+
+</div>
+
+<script>
+
+function signup(){
+
+let user=document.getElementById("newuser").value;
+let pass=document.getElementById("newpass").value;
+
+if(user==="" || pass==="")
+{
+document.getElementById("msg").innerText="Please fill all fields";
+return;
+}
+
+localStorage.setItem("username",user);
+localStorage.setItem("password",pass);
+
+document.getElementById("msg").innerText="Account created successfully";
+
+setTimeout(()=>{
+window.location.href="login.html";
+},1500);
+
+}
+
+</script>
+
+</body>
+</html>
