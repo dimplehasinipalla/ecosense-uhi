@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>EcoSense Login</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI, sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
+background-size:400% 400%;
+animation:gradient 12s ease infinite;
+}
+
+@keyframes gradient{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+.container{
+display:flex;
+width:850px;
+height:480px;
+background:rgba(255,255,255,0.1);
+border-radius:20px;
+backdrop-filter:blur(15px);
+box-shadow:0 10px 40px rgba(0,0,0,0.4);
+overflow:hidden;
+}
+
+.left{
+flex:1;
+background:linear-gradient(135deg,#ff5e62,#ff9966);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:40px;
+color:white;
+}
+
+.left h1{
+font-size:32px;
+margin-bottom:10px;
+}
+
+.left p{
+font-size:14px;
+opacity:0.9;
+}
+
+.right{
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:center;
+padding:40px;
+color:white;
+}
+
+.right h2{
+margin-bottom:20px;
+font-weight:400;
+}
+
+.input-box{
+position:relative;
+margin-bottom:20px;
+}
+
+.input-box input{
+width:100%;
+padding:12px 40px;
+border:none;
+border-radius:8px;
+background:rgba(0,0,0,0.3);
+color:white;
+outline:none;
+}
+
+.input-box i{
+position:absolute;
+left:12px;
+top:12px;
+color:#ddd;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:25px;
+background:linear-gradient(to right,#ff5e62,#ff9966);
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 5px 15px rgba(255,94,98,0.4);
+}
+
+.options{
+display:flex;
+justify-content:space-between;
+font-size:13px;
+margin-top:10px;
+}
+
+.options a{
+color:#ddd;
+text-decoration:none;
+}
+
+.options a:hover{
+text-decoration:underline;
+}
+
+#error{
+color:#ffb3b3;
+margin-top:10px;
+font-size:13px;
+}
+
+@media(max-width:800px){
+
+.container{
+flex-direction:column;
+height:auto;
+width:90%;
+}
+
+.left{
+display:none;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="left">
+
+<h1>EcoSense</h1>
+<p>Urban Heat Island Simulation Platform</p>
+
+<br>
+
+<p>Predict urban temperature growth, analyze climate trends, and explore sustainable solutions for smarter cities 🌍</p>
+
+</div>
+
+<div class="right">
+
+<h2>Login to Dashboard</h2>
+
+<div class="input-box">
+<i class="fa fa-user"></i>
+<input type="text" id="username" placeholder="Username">
+</div>
+
+<div class="input-box">
+<i class="fa fa-lock"></i>
+<input type="password" id="password" placeholder="Password">
+</div>
+
+<button onclick="login()">Login</button>
+
+<div class="options">
+<a href="#">Forgot Password?</a>
+<a href="signup.html">Create Account</a>
+</div>
+
+<p id="error"></p>
+
+</div>
+
+</div>
+
+<script>
+
+function login(){
+
+let user=document.getElementById("username").value;
+let pass=document.getElementById("password").value;
+
+/* read account from signup page */
+
+let storedUser = localStorage.getItem("username");
+let storedPass = localStorage.getItem("password");
+
+if(user===storedUser && pass===storedPass)
+{
+window.location.href="index.html";
+}
+else
+{
+document.getElementById("error").innerText="Invalid username or password";
+}
+
+}
+
+</script>
+
+</body>
+</html>
+```
