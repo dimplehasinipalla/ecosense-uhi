@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>EcoSense: Urban Heat Simulator</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+:root{
+--primary:#ff5e62;
+--secondary:#ff9966;
+--glass:rgba(255,255,255,0.1);
+}
+
+body{
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+background:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
+background-size:400% 400%;
+animation:gradient 15s ease infinite;
+color:white;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+margin:0;
+}
+
+@keyframes gradient{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+/* PROFILE MENU */
+
+.profile-menu{
+position:fixed;
+top:20px;
+right:25px;
+}
+
+.profile-icon{
+font-size:30px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.profile-icon:hover{
+transform:scale(1.1);
+}
+
+/* DROPDOWN */
+
+.dropdown{
+display:none;
+position:absolute;
+right:0;
+top:40px;
+background:rgba(0,0,0,0.85);
+padding:15px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.4);
+min-width:150px;
+text-align:center;
+}
+
+.dropdown p{
+margin:0 0 10px 0;
+font-size:14px;
+color:#ddd;
+}
+
+.dropdown button{
+width:100%;
+background:none;
+border:none;
+color:white;
+font-size:14px;
+cursor:pointer;
+padding:5px;
+}
+
+.dropdown button:hover{
+color:#ff9966;
+}
+
+/* CARD */
+
+.card{
+width:90%;
+max-width:900px;
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(15px);
+border:1px solid rgba(255,255,255,0.2);
+padding:30px;
+border-radius:20px;
+box-shadow:0 8px 32px rgba(0,0,0,0.37);
+display:grid;
+grid-template-columns:1fr 1.5fr;
+gap:25px;
+}
+
+@media(max-width:768px){
+.card{grid-template-columns:1fr;}
+}
+
+.controls{text-align:left;}
+
+h2{
+margin-top:0;
+font-weight:300;
+letter-spacing:1px;
+}
+
+.input-group{
+margin-bottom:15px;
+}
+
+label{
+display:block;
+font-size:12px;
+margin-bottom:5px;
+color:#ddd;
+}
+
+select,input[type="range"]{
+width:100%;
+background:rgba(0,0,0,0.2);
+border:1px solid rgba(255,255,255,0.2);
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+background:linear-gradient(to right,#ff5e62,#ff9966);
+border:none;
+border-radius:50px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 5px 15px rgba(255,94,98,0.4);
+}
+
+#heat-badge{
+display:inline-block;
+padding:6px 15px;
+border-radius:20px;
+font-size:14px;
+margin-top:10px;
+background:rgba(0,0,0,0.3);
+}
+
+.chart-container{
+background:rgba(0,0,0,0.2);
+border-radius:15px;
+padding:15px;
+}
+
+.table-wrapper{
+max-height:150px;
+overflow-y:auto;
+margin-top:15px;
+font-size:12px;
+border-radius:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:rgba(255,255,255,0.1);
+position:sticky;
+top:0;
+}
+
+td,th{
+padding:8px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+#summary{
+margin-top:10px;
+font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- PROFILE MENU -->
+
+<div class="profile-menu">
+
+<i class="fa-solid fa-user-circle profile-icon" onclick="toggleMenu()"></i>
+
+<div id="dropdown" class="dropdown">
+
+<p id="welcomeUser"></p>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="controls">
+
+<h2>UHI Simulator</h2>
+
+<div class="input-group">
+<label>Select City</label>
+<select id="city">
+<option value="28">Delhi (Avg 28°C)</option>
+<option value="27">Mumbai (Avg 27°C)</option>
+<option value="29">Chennai (Avg 29°C)</option>
+<option value="24">Bangalore (Avg 24°C)</option>
+</select>
+</div>
+
+<div class="input-group">
+<label>Urbanization Growth Rate (<span id="uVal">0.2</span>)</label>
+<input type="range" id="urban" min="0" max="1" step="0.1" value="0.2"
+oninput="uVal.innerText=this.value">
+</div>
+
+<div class="input-group">
+<label>Population Density Impact (<span id="pVal">0.1</span>)</label>
+<input type="range" id="pop" min="0" max="1" step="0.05" value="0.1"
+oninput="pVal.innerText=this.value">
+</div>
+
+<div class="input-group">
+<label>Global Climate Shift (<span id="cVal">0.05</span>)</label>
+<input type="range" id="climate" min="0" max="0.5" step="0.01" value="0.05"
+oninput="cVal.innerText=this.value">
+</div>
+
+<div class="input-group">
+<label>Green Cover Mitigation (<span id="gVal">0.1</span>)</label>
+<input type="range" id="green" min="0" max="0.5" step="0.05" value="0.1"
+oninput="gVal.innerText=this.value">
+</div>
+
+<div class="input-group">
+<label>Simulation Period: <span id="yVal">20</span> Years</label>
+<input type="range" id="years" min="5" max="50" step="5" value="20"
+oninput="yVal.innerText=this.value">
+</div>
+
+<button onclick="simulate()">Generate Forecast</button>
+<button onclick="downloadCSV()">Download Report</button>
+<button onclick="location.reload()">Reset</button>
+
+<div id="heat-badge">Ready to simulate...</div>
+<div id="summary"></div>
+
+</div>
+
+<div class="viz">
+
+<div class="chart-container">
+<canvas id="chart"></canvas>
+</div>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>Year</th>
+<th>Forecast Temp</th>
+</tr>
+</thead>
+<tbody id="table-body"></tbody>
+</table>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* LOGIN PROTECTION */
+
+let user = localStorage.getItem("username");
+
+if(!user){
+window.location.href="login.html";
+}
+
+/* DISPLAY USERNAME */
+
+document.getElementById("welcomeUser").innerText="Welcome, "+user;
+
+/* PROFILE MENU */
+
+function toggleMenu(){
+
+let menu=document.getElementById("dropdown");
+
+menu.style.display =
+menu.style.display==="block" ? "none" : "block";
+
+}
+
+/* LOGOUT */
+
+function logout(){
+
+localStorage.removeItem("username");
+localStorage.removeItem("password");
+
+window.location.href="login.html";
+
+}
+
+let chart;
+
+function simulate(){
+
+let t=parseFloat(document.getElementById("city").value);
+let u=parseFloat(document.getElementById("urban").value);
+let p=parseFloat(document.getElementById("pop").value);
+let c=parseFloat(document.getElementById("climate").value);
+let g=parseFloat(document.getElementById("green").value);
+let y=parseInt(document.getElementById("years").value);
+
+let temps=[];
+let years=[];
+let tableBody=document.getElementById("table-body");
+tableBody.innerHTML="";
+
+let current=t;
+
+for(let i=0;i<=y;i++){
+
+temps.push(current.toFixed(2));
+years.push("Year "+i);
+
+tableBody.innerHTML+=`<tr><td>${i}</td><td>${current.toFixed(2)} °C</td></tr>`;
+
+let growth=(current*0.01*(u+p+c))-(g*0.5);
+current=current+growth+(Math.random()*0.05);
+
+}
+
+drawGraph(years,temps);
+updateBadge(temps[temps.length-1]);
+
+let increase=(temps[temps.length-1]-temps[0]).toFixed(2);
+
+document.getElementById("summary").innerHTML=
+`Predicted temperature rise: <b>${increase}°C</b> over ${y} years`;
+
+}
+
+function drawGraph(labels,data){
+
+const ctx=document.getElementById('chart').getContext('2d');
+
+if(chart) chart.destroy();
+
+chart=new Chart(ctx,{
+type:'line',
+data:{
+labels:labels,
+datasets:[{
+label:'Projected Temp',
+data:data,
+borderColor:'#ff9966',
+backgroundColor:'rgba(255,153,102,0.2)',
+fill:true,
+tension:0.4
+}]
+},
+options:{responsive:true}
+});
+
+}
+
+function updateBadge(temp){
+
+let badge=document.getElementById("heat-badge");
+
+if(temp<30){
+badge.innerText="🍃 Stable Environment";
+badge.style.background="rgba(50,200,100,0.3)";
+}
+else if(temp<35){
+badge.innerText="⚠ Rising Heat";
+badge.style.background="rgba(255,180,0,0.3)";
+}
+else{
+badge.innerText="🔥 Extreme UHI";
+badge.style.background="rgba(255,50,50,0.3)";
+}
+
+}
+
+function downloadCSV(){
+
+let rows=[["Year","Temperature"]];
+let table=document.querySelectorAll("#table-body tr");
+
+table.forEach(row=>{
+let cols=row.querySelectorAll("td");
+rows.push([cols[0].innerText,cols[1].innerText]);
+});
+
+let csv=rows.map(e=>e.join(",")).join("\n");
+
+let blob=new Blob([csv],{type:'text/csv'});
+let url=URL.createObjectURL(blob);
+
+let a=document.createElement("a");
+a.href=url;
+a.download="uhi_forecast.csv";
+a.click();
+
+}
+
+window.onload=simulate;
+
+</script>
+
+</body>
+</html>
